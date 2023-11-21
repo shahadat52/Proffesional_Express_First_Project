@@ -11,6 +11,8 @@ app.use(cors());
 app.use('/api/v1/students', studentRoutes);
 app.use('api/v1/students', studentRoutes);
 app.use('api/v1/students/:studentId', studentRoutes);
+app.use('api/v1/students/:studentId', studentRoutes);
+app.use('api/va/students/', studentRoutes);
 
 app.get('/', (req: Request, res: Response) => {
   const a = 10;
