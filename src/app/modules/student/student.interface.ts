@@ -1,6 +1,6 @@
 // import { Schema, model, connect } from 'mongoose';
 
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 
 export type TName = {
   firstName: string;
@@ -24,11 +24,12 @@ export type TLocalGuardian = {
 };
 export type TStudent = {
   id: string;
+  user: Types.ObjectId;
   name: TName;
   password: string;
   gender: 'male' | 'female';
   email: string;
-  dateOfBirth: string;
+  dateOfBirth: Date;
   contactNo: string;
   emergencyContactNo: string;
   bloodGroup?: 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
@@ -37,15 +38,16 @@ export type TStudent = {
   guardian: TGuardian;
   localGuardian: TLocalGuardian;
   profileImage?: string;
-  isActive: 'active' | 'block';
+  admissionSemester: Types.ObjectId
   isDeleted: boolean;
-  maritalStatus: boolean;
+  
 };
 
 //creating for static methods
 
 export interface StudentModel extends Model<TStudent> {
-  isUserExists(): Promise<TStudent | null>;
+  // eslint-disable-next-line no-unused-vars
+  isUserExists(id: string): Promise<TStudent | null>;
 }
 
 //creating for instance methods
