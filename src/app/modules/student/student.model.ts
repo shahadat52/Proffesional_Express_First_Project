@@ -91,7 +91,7 @@ const studentSchema = new Schema<TStudent, StudentModel>({
   },
 
   isDeleted: { type: Boolean, default: false },
-});
+}, {timestamps: true});
 
 studentSchema.set('toJSON', { virtuals: true });
 
