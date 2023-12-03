@@ -39,8 +39,14 @@ const deleteStudent = catchAsync(async (req, res) => {
   });
 });
 
-const updateStudentContactNo = catchAsync(async (req, res) => {
-  const result = await StudentService.updateStudentContactNoToDb();
+const updatedStudent = catchAsync(async (req, res) => {
+  const { studentId } = req.params;
+  const  {student}  = req.body;
+  console.log("ggg",student);
+  const result = await StudentService.updatedStudentInDB(
+    studentId,
+    student,
+  );
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -53,5 +59,5 @@ export const studentControllers = {
   getStudents,
   getSingleStudent,
   deleteStudent,
-  updateStudentContactNo,
+  updatedStudent,
 };

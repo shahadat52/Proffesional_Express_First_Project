@@ -1,7 +1,7 @@
 // import { boolean } from 'joi';
 import { z } from 'zod';
 
-const studentNameZodSchema = z.object({
+const createStudentNameZodSchema = z.object({
   firstName: z
     .string()
     .min(1)
@@ -18,7 +18,7 @@ const studentNameZodSchema = z.object({
     }),
 });
 
-const guardianZodSchema = z.object({
+const createGuardianZodSchema = z.object({
   fatherName: z.string().min(1),
   fatherOccupation: z.string().min(1),
   fatherContactNo: z.string().min(1),
@@ -27,7 +27,7 @@ const guardianZodSchema = z.object({
   motherContactNo: z.string().min(1),
 });
 
-const localGuardianZodSchema = z.object({
+const createLocalGuardianZodSchema = z.object({
   name: z.string().min(1),
   occupation: z.string().min(1),
   contactNo: z.string().min(1),
@@ -41,7 +41,7 @@ export const createStudentValidationSchema = z.object({
       .max(20, 'Password not allow more then 20 charecters')
       .optional(),
     student: z.object({
-      name: studentNameZodSchema,
+      name: createStudentNameZodSchema,
       gender: z.enum(['male', 'female']),
       dateOfBirth: z.string().optional(),
       email: z.string().email({ message: 'Invalid email address' }),
@@ -52,8 +52,8 @@ export const createStudentValidationSchema = z.object({
         .optional(),
       presentAddress: z.string().min(1),
       permanentAddress: z.string().min(1),
-      guardian: guardianZodSchema,
-      localGuardian: localGuardianZodSchema,
+      guardian: createGuardianZodSchema,
+      localGuardian: createLocalGuardianZodSchema,
       profileImage: z.string().min(1),
       isActive: z.enum(['active', 'block']),
       admissionSemester: z.string(),
@@ -62,6 +62,70 @@ export const createStudentValidationSchema = z.object({
   }),
 });
 
+const updateStudentNameZodSchema = z.object({
+  firstName: z
+    .string()
+    .min(1)
+    .max(20)
+    .refine((value) => /^[A-Z]/.test(value), {
+      message: 'First name must start with a capital letter',
+    })
+    .optional(),
+  middleName: z.string().optional(),
+  lastName: z
+    .string()
+    .min(1)
+    .refine((value) => /^[A-Za-z]+$/.test(value), {
+      message: 'Last name allows only letters',
+    })
+    .optional(),
+});
+
+const updateGuardianZodSchema = z
+  .object({
+    fatherName: z.string().min(1).optional(),
+    fatherOccupation: z.string().min(1).optional(),
+    fatherContactNo: z.string().min(1).optional(),
+    motherName: z.string().min(1).optional(),
+    motherOccupation: z.string().min(1).optional(),
+    motherContactNo: z.string().min(1).optional(),
+  })
+  .optional();
+
+const updateLocalGuardianZodSchema = z
+  .object({
+    name: z.string().min(1).optional(),
+    occupation: z.string().min(1).optional(),
+    contactNo: z.string().min(1).optional(),
+    address: z.string().min(1).optional(),
+  })
+  .optional();
+
+export const updateStudentValidationSchema = z.object({
+  body: z.object({
+    student: z.object({
+      name: updateStudentNameZodSchema,
+      gender: z.enum(['male', 'female']).optional(),
+      dateOfBirth: z.string().optional().optional(),
+      email: z.string().email({ message: 'Invalid email address' }).optional(),
+      contactNo: z.string().min(1).optional(),
+      emergencyContactNo: z.string().min(1).optional(),
+      bloodGroup: z
+        .enum(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'])
+        .optional(),
+      presentAddress: z.string().min(1).optional(),
+      permanentAddress: z.string().min(1).optional(),
+      guardian: updateGuardianZodSchema,
+      localGuardian: updateLocalGuardianZodSchema,
+      profileImage: z.string().min(1).optional(),
+      isActive: z.enum(['active', 'block']).optional(),
+      admissionSemester: z.string().optional(),
+      isDeleted: z.boolean().optional(),
+    }),
+  }),
+});
+
 export const studentValidations = {
   createStudentValidationSchema,
+  updateStudentValidationSchema,
 };

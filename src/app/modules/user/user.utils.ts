@@ -9,13 +9,10 @@ const findLastStudentID = async () => {
     .lean();
   return lastStudentId?.id ? lastStudentId.id : undefined;
 
-  console.log('last', lastStudentId);
 };
 
 const generateStudentID = async (payload: TAcademicSemester) => {
   let currentId = (0).toString();
-  console.log(currentId);
-
   const lastStudentId = await findLastStudentID();
   // // 2030 01 0001
   // const lastStudentSemesterCode = lastStudentId?.substring(4, 6); //01;
@@ -40,10 +37,8 @@ const generateStudentID = async (payload: TAcademicSemester) => {
     console.log('ahh', currentId);
   }
 
-  let incrementId = await (Number(currentId) + 1).toString().padStart(4, '0');
-  console.log('incre', incrementId);
+  let incrementId =  (Number(currentId) + 1).toString().padStart(4, '0');
   incrementId = `${payload.year}${payload.code}${incrementId}`;
-  console.log(incrementId);
 
   return incrementId;
 };

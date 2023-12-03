@@ -89,6 +89,10 @@ const studentSchema = new Schema<TStudent, StudentModel>({
     type: Schema.Types.ObjectId,
     ref: 'AcademicSemester',
   },
+  academicDepartment: {
+    type: Schema.Types.ObjectId,
+    ref: 'AcademicDepartment'
+  },
 
   isDeleted: { type: Boolean, default: false },
 }, {timestamps: true});
@@ -114,7 +118,7 @@ studentSchema.pre('aggregate', function (next) {
 studentSchema.virtual('fullname').get(function () {
   return `${this.name.firstName} ${this.name.middleName} ${this.name.lastName}`;
 });
-// create static method
+// create static method for check user exists
 studentSchema.statics.isUserExists = async function (id: string) {
   const exists = await Student.findOne({ id });
   console.log(exists);
