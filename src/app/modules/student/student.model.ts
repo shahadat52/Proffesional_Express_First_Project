@@ -4,7 +4,7 @@ import { TGuardian, TName, TStudent, StudentModel } from './student.interface';
 const studentNameSchema = new Schema<TName>({
   firstName: {
     type: String,
-    required: true,
+    required: [true, 'first name is required'],
     maxlength: [20, 'FirstName allowed only 20 charectar'],
   },
   middleName: { type: String },
@@ -30,72 +30,75 @@ const localGuardianSchema = new Schema({
 });
 
 // create student schema
-const studentSchema = new Schema<TStudent, StudentModel>({
-  id: {
-    type: String,
-    unique: true,
-    required: [true, 'Student ID is required'],
-  },
-  user: {
-    type: Schema.Types.ObjectId,
-    required: [true, 'User must be required'],
-    unique: true,
-    ref: 'User',
-  },
-  password: {
-    type: String,
-    maxlength: [20, 'Password not allow more then 20 characters'],
-  },
-  name: {
-    type: studentNameSchema,
-    required: [true, 'Student Name is required'],
-  },
-  gender: {
-    type: String,
-    enum: {
-      values: ['male', 'female'],
-      message: '{VALUE} is not supported',
+const studentSchema = new Schema<TStudent, StudentModel>(
+  {
+    id: {
+      type: String,
+      unique: true,
+      required: [true, 'Student ID is required'],
     },
-    required: true,
-  },
-  dateOfBirth: { type: Date, trim: true },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    trim: true,
-  },
-  contactNo: { type: String, required: true, trim: true },
-  emergencyContactNo: { type: String, required: true, trim: true },
-  bloodGroup: {
-    type: String,
-    enum: {
-      values: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
-      message: 'Please enter a valid blood group',
+    user: {
+      type: Schema.Types.ObjectId,
+      required: [true, 'User must be required'],
+      unique: true,
+      ref: 'User',
     },
-  },
-  presentAddress: { type: String, required: true },
-  permanentAddress: { type: String, required: true },
-  guardian: {
-    type: guardianSchema,
-    required: [true, 'Guardian Details are required'],
-  },
-  localGuardian: {
-    type: localGuardianSchema,
-    required: [true, 'Local Guardian details are required'],
-  },
-  profileImage: { type: String, required: true },
-  admissionSemester: {
-    type: Schema.Types.ObjectId,
-    ref: 'AcademicSemester',
-  },
-  academicDepartment: {
-    type: Schema.Types.ObjectId,
-    ref: 'AcademicDepartment'
-  },
+    password: {
+      type: String,
+      maxlength: [20, 'Password not allow more then 20 characters'],
+    },
+    name: {
+      type: studentNameSchema,
+      required: [true, 'Student Name is required'],
+    },
+    gender: {
+      type: String,
+      enum: {
+        values: ['male', 'female'],
+        message: '{VALUE} is not supported',
+      },
+      required: true,
+    },
+    dateOfBirth: { type: Date, trim: true },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+    },
+    contactNo: { type: String, required: true, trim: true },
+    emergencyContactNo: { type: String, required: true, trim: true },
+    bloodGroup: {
+      type: String,
+      enum: {
+        values: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
+        message: 'Please enter a valid blood group',
+      },
+    },
+    presentAddress: { type: String, required: true },
+    permanentAddress: { type: String, required: true },
+    guardian: {
+      type: guardianSchema,
+      required: [true, 'Guardian Details are required'],
+    },
+    localGuardian: {
+      type: localGuardianSchema,
+      required: [true, 'Local Guardian details are required'],
+    },
+    profileImage: { type: String, required: true },
+    admissionSemester: {
+      type: Schema.Types.ObjectId,
+      ref: 'AcademicSemester',
+    },
+    academicDepartment: {
+      type: Schema.Types.ObjectId,
+      ref: 'AcademicDepartment',
+    },
 
-  isDeleted: { type: Boolean, default: false },
-}, {timestamps: true});
+    isDeleted: { type: Boolean, default: false },
+  },
+  { timestamps: true },
+);
 
 studentSchema.set('toJSON', { virtuals: true });
 

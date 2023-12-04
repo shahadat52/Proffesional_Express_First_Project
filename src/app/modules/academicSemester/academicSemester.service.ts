@@ -6,7 +6,7 @@ import { AcademicSemesterModel } from './academicSemester.model';
 const createAcademicSemesterInDB = async (payload: TAcademicSemester) => {
   // check for aline of semester name and code
   if (semesterNameAndCodeMapper[payload.name] !== payload.code) {
-    throw new Error('Invalid semester code');
+    // throw new Error('Invalid semester code');
   }
   const result = await AcademicSemesterModel.create(payload);
   return result;

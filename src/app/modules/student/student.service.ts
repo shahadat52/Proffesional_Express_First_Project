@@ -54,6 +54,7 @@ const deleteStudentFromDb = async (id: string) => {
     } catch (error) {
       await session.abortTransaction();
       await session.endSession();
+      throw new Error('operation failed')
     }
   }
   throw new Error('Student Not Found');
