@@ -14,9 +14,9 @@ app.use(cors());
 app.use('/api/v1', router);
 
 app.get('/', (req: Request, res: Response) => {
+  // Promise.reject();
   const a = 10;
-
-  res.send(a);
+  res.send(`${a}`);
 });
 
 // Global error handler middleware

@@ -119,7 +119,7 @@ studentSchema.pre('aggregate', function (next) {
 });
 
 studentSchema.virtual('fullname').get(function () {
-  return `${this.name.firstName} ${this.name.middleName} ${this.name.lastName}`;
+  return `${this.name?.firstName} ${this.name?.middleName} ${this.name?.lastName}`;
 });
 // create static method for check user exists
 studentSchema.statics.isUserExists = async function (id: string) {

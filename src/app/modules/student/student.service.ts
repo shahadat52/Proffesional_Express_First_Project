@@ -2,14 +2,83 @@ import mongoose from 'mongoose';
 import { Student } from './student.model';
 import { UserModel } from '../user/user.model';
 import { TStudent } from './student.interface';
+import QueryBuilder from '../../builder/QueryBuilder';
+import { studentSearchableFields } from './student.constant';
 
 //service will query in DB
 
-const getAllStudentFromDb = async () => {
-  const result = await Student.find();
-  // .populate()
-  // .populate('academicDepartment');
+const getAllStudentFromDb = async (query: Record<string, unknown>) => {
+  // const queryObj = { ...query };
 
+  // // {email: {$regex: query, $options:'i'}}
+  // let searchTerm = '';
+  // if (query?.searchTerm) {
+  //   searchTerm = query.searchTerm as string;
+  // }
+
+  // const excludeSearchTerm = ['searchTerm', 'sort', 'page', 'limit', 'fields'];
+  // excludeSearchTerm.forEach((ele) => delete queryObj[ele]);
+  // // copyQuery.forEach(element => delete element[excludeSearchTerm]);
+
+  // const searchQuery = Student.find({
+  //   $or: ['email', 'address', 'name.middleName', 'page', 'limit',].map(
+  //     (field) => ({
+  //       [field]: { $regex: searchTerm, $options: 'i' },
+  //     }),
+  //   ),
+  // });
+  // console.log('queryObj', queryObj);
+
+  // const filterQuery = searchQuery.find(queryObj);
+  // // .populate()
+  // // .populate('academicDepartment');
+  // let sort = '-createdAt';
+
+  // if (query.sort) {
+  //   sort = query.sort as string;
+  // }
+
+  // const sortQuery = filterQuery.sort(sort);
+
+  // let limit = 1;
+  // if (query.limit) {
+  //   limit = Number(query.limit);
+  // }
+
+  // let page = 1;
+  // let skip = 0;
+  // if (query.limit) {
+  //   limit = Number(query.limit);
+  // }
+  // if (query.page) {
+  //   page = Number(query.page);
+  //   skip = (page - 1) * limit;
+  // }
+
+  // const paginationQuery = sortQuery.skip(skip);
+  // // const paginationQuery = sortQuery.skip(skip);
+  // // console.log({paginationQuery});
+  // const limitQuery =  paginationQuery.limit(limit);
+
+  // let fields = '-_v'
+  // // fields= name email
+  // if(query.fields){
+  //   fields = (query.fields as string).split(',').join(' ')
+  //   console.log(fields);
+  // }
+
+  // const selectQuery = await limitQuery.select(fields)
+
+  // return selectQuery;
+
+  const studentQuery = new QueryBuilder(Student.find(), query)
+    .search(studentSearchableFields)
+    .filter()
+    .sort()
+    .pagination()
+    .fields();
+
+  const result = await studentQuery.modelQuery;
   return result;
 };
 //[ { '$match': { '$ne': '12342445844' } } , { '$match': { '$ne': '12342445844' } } ]
@@ -54,7 +123,7 @@ const deleteStudentFromDb = async (id: string) => {
     } catch (error) {
       await session.abortTransaction();
       await session.endSession();
-      throw new Error('operation failed')
+      throw new Error('operation failed');
     }
   }
   throw new Error('Student Not Found');

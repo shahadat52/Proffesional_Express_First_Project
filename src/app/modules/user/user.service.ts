@@ -6,8 +6,8 @@ import { TStudent } from '../student/student.interface';
 import { Student } from '../student/student.model';
 import { TUser } from './user.interface';
 import { UserModel } from './user.model';
-import generateStudentID from './user.utils';
 import AppError from '../../errors/appErrors';
+import { generateStudentID } from './user.utils';
 
 const createStudentInDb = async (password: string, payload: TStudent) => {
   //firstly I have to create a user then I will create a student
@@ -44,7 +44,8 @@ const createStudentInDb = async (password: string, payload: TStudent) => {
 
     const newStudent = await Student.create([payload], { session });
     if (!newStudent) {
-      throw new Error('Failed to create student');
+      return;
+      // throw new Error('Failed to create student');
     }
     await session.commitTransaction();
     await session.endSession();
@@ -52,9 +53,16 @@ const createStudentInDb = async (password: string, payload: TStudent) => {
   } catch (error) {
     await session.abortTransaction();
     await session.endSession();
-    throw new AppError(400, 'Failed to create student');
+    // throw new Error(error.message)
+    throw new AppError(400, `${(error as Error).message}`);
   }
 };
+
+// const createFacultyInDB = (payload) =>{
+
+// }
+
 export const userService = {
   createStudentInDb,
+  // createFacultyInDB
 };

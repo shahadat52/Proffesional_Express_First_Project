@@ -11,7 +11,7 @@ const findLastStudentID = async () => {
 
 };
 
-const generateStudentID = async (payload: TAcademicSemester) => {
+export const generateStudentID = async (payload: TAcademicSemester) => {
   let currentId = (0).toString();
   const lastStudentId = await findLastStudentID();
   // // 2030 01 0001
@@ -43,4 +43,4 @@ const generateStudentID = async (payload: TAcademicSemester) => {
   return incrementId;
 };
 
-export default generateStudentID;
+

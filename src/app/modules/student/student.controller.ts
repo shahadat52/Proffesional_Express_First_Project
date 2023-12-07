@@ -6,7 +6,8 @@ import catchAsync from '../../utils/catchAsync';
 
 //controller fn will call service fn
 const getStudents = catchAsync(async (req, res) => {
-  const result = await StudentService.getAllStudentFromDb();
+
+  const result = await StudentService.getAllStudentFromDb(req.query);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
