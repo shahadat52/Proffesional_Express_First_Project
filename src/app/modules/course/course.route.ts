@@ -10,7 +10,23 @@ router.post(
   courseCollections.createCourse,
 );
 router.get('/', courseCollections.getAllCourses);
+router.patch(
+  '/:courseId',
+  validateRequest(courseValidation.updateCreateCourseValidationSchema),
+  courseCollections.updateSpecificCourse,
+);
 router.get('/:courseId', courseCollections.getSingleCourse);
-router.delete('/:courseId', courseCollections.updateSingleCourse);
+router.delete('/:courseId', courseCollections.deleteSingleCourse);
+
+router.post(
+  '/:courseId/assign-faculties',
+  validateRequest(courseValidation.createCourseFacultyValidationSchema),
+  courseCollections.assignCourseFaculty,
+);
+router.delete(
+  '/:courseId/remove-faculties',
+ 
+  courseCollections.removeCourseFaculty,
+);
 
 export const courseRouters = router;

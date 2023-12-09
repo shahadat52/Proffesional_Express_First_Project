@@ -9,6 +9,11 @@ export type TCourse = {
   prefix: string;
   code: number;
   credits: number;
-  isDeleted: boolean;
+  isDeleted?: boolean;
   preRequisiteCourse: [TPreRequisiteCourses];
+};
+
+export type TCourseFaculty = {
+  course: Types.ObjectId;
+  faculties: [Types.ObjectId];
 };
