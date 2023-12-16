@@ -8,6 +8,8 @@ import { TUser } from './user.interface';
 import { UserModel } from './user.model';
 import AppError from '../../errors/appErrors';
 import { generateStudentID } from './user.utils';
+import { TFaculty } from '../faculty/faculty.interface';
+import { FacultyModel } from '../faculty/faculty.model';
 
 const createStudentInDb = async (password: string, payload: TStudent) => {
   //firstly I have to create a user then I will create a student
@@ -58,11 +60,40 @@ const createStudentInDb = async (password: string, payload: TStudent) => {
   }
 };
 
-// const createFacultyInDB = (payload) =>{
+//F-0001
+const generateFacultyID = async () => {
+  const lastFaculty = await UserModel.findOne({ role: 'faculty' }).sort(
+    '-createdAt',
+  );
+  let lastFacultyId = lastFaculty?.id;
+  lastFacultyId = lastFacultyId?.split('-')[1];
+  let currentId = lastFacultyId || (0).toString();
+  const faculty = 'F-';
+  currentId = (Number(currentId) + 1).toString().padStart(4, '0');
+  currentId = faculty + currentId;
+  return currentId;
+};
+generateFacultyID();
+const createFacultyInDB = async (password: string, faculty: TFaculty) => {
+  // console.log(faculty);
+  const userData: Partial<TUser> = {};
 
-// }
+  userData.role = 'faculty';
+  userData.id = await generateFacultyID();
+  userData.password = password || config.default_pass;
+  const facultyUser = await UserModel.create([userData]);
+  if (!facultyUser.length) {
+    throw new AppError(400, 'User created unsuccessful');
+  }
+  faculty.id = facultyUser[0]?.id
+  const result = await FacultyModel.create(faculty);
+  if (!result) {
+    throw new AppError(400, 'Faculty created unsuccessful');
+  }
+  return result;
+};
 
 export const userService = {
   createStudentInDb,
-  // createFacultyInDB
+  createFacultyInDB,
 };

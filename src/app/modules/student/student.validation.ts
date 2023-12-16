@@ -38,7 +38,7 @@ export const createStudentValidationSchema = z.object({
   body: z.object({
     password: z
       .string()
-      .max(20, 'Password not allow more then 20 charecters')
+      .max(20, 'Password not allow more then 20 characters')
       .optional(),
     student: z.object({
       name: createStudentNameZodSchema,

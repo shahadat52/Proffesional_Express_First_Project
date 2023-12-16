@@ -84,9 +84,7 @@ const updateSpecificCourseInDB = async (
           'Failed to delete Pre Requisite Course data',
         );
       }
-      const newPreRequisites = preRequisiteCourse.filter(
-        (ele) => ele.course && !ele.isDeleted,
-      );
+      const newPreRequisites = preRequisiteCourse.filter((ele) => ele.course && !ele.isDeleted);
       console.log({ newPreRequisites });
 
       const updatePreRequisiteCourse = await CourseModel.findByIdAndUpdate(

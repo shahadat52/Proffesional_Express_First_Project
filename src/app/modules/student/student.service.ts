@@ -7,7 +7,7 @@ import { studentSearchableFields } from './student.constant';
 
 //service will query in DB
 
-const getAllStudentFromDb = async (query: Record<string, unknown>) => {
+const getAllStudentFromDb = async ( query: Record<string, unknown>) => {
   // const queryObj = { ...query };
 
   // // {email: {$regex: query, $options:'i'}}
