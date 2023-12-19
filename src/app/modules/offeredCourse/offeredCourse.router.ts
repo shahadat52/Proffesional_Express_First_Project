@@ -13,5 +13,12 @@ router.post(
 );
 
 router.get('/', offeredCourseCollections.getAllOfferedCourse);
+router.patch(
+  '/:offeredCourseId',
+  validateRequest(
+    offeredCourseValidationSchemas.updateOfferedCourseValidationSchema,
+  ),
+  offeredCourseCollections.updateOfferedCourse,
+);
 
 export const offeredCourseRouter = router;

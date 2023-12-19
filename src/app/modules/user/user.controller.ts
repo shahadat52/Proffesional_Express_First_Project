@@ -16,7 +16,6 @@ const createStudent = catchAsync(async (req, res) => {
 });
 const createFaculty = catchAsync(async (req, res) => {
   const { password, faculty } = req.body;
-  // console.log({ password }, { faculty });
   const result = await userService.createFacultyInDB(password, faculty);
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -26,13 +25,21 @@ const createFaculty = catchAsync(async (req, res) => {
   });
 });
 
-// const createFaculty = catchAsync(async(req, res)=>{
-//   const {facultyData} = req.body;
-//   const result = await userService.createFacultyInDB(facultyData)
-//   return result
-// })
+const createAdmin = catchAsync(async (req, res) => {
+  const { password, admin: adminData } = req.body;
+
+  const result = await userService.createAdminIntoDB(password, adminData);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Admin is created succesfully',
+    data: result,
+  });
+});
 
 export const userController = {
   createStudent,
   createFaculty,
+  createAdmin
 };

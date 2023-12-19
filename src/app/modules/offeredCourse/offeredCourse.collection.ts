@@ -2,7 +2,6 @@ import httpStatus from 'http-status';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { offeredCourseServices } from './offeredCourse.service';
-import { OfferedCourseModel } from './offeredCourse.model';
 
 const createOfferedCourse = catchAsync(async (req, res) => {
   const result = await offeredCourseServices.createOfferedCourseInDB(req.body);
@@ -29,15 +28,15 @@ const getAllOfferedCourse = catchAsync(async (req, res) => {
 });
 
 const updateOfferedCourse = catchAsync(async (req, res) => {
-  const { offeredCourse } = req.query;
+  const { offeredCourseId } = req.params;
   const result = await offeredCourseServices.updateOfferedCourseInDB(
-    offeredCourse,
+    offeredCourseId,
     req.body,
   );
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
-    message: `This Offered course data updated successful`,
+    message: `Offered course data updated successful`,
     data: result,
   });
 });

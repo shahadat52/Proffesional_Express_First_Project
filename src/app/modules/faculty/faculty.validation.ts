@@ -17,24 +17,8 @@ const facultyValidationSchema = z.object({
   body: z.object({
     password: z.string().optional(),
     faculty: z.object({
-      id: z
-        .string({
-        })
-        .min(1)
-        .max(255).optional(),
-      role: z
-        .string({
-          required_error: 'must be required',
-        })
-        .min(1)
-        .max(255),
+      id: z.string({}).min(1).max(255).optional(),
       name: facultyNameValidationSchema,
-      user: z
-        .string({
-          required_error: 'must be required',
-        })
-        .min(1)
-        .max(255),
       designation: z
         .string({
           required_error: 'must be required',

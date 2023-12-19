@@ -14,10 +14,6 @@ const facultySchema = new Schema<TFaculty>(
       trim: true,
       required: [true, 'Faculty id must be required'],
     },
-    role: {
-      type: String,
-      required: [true, 'Faculty role must be required'],
-    },
     name: {
       type: facultyName,
       required: [true, 'Name must be required'],

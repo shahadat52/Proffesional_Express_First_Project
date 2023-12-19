@@ -43,4 +43,32 @@ export const generateStudentID = async (payload: TAcademicSemester) => {
   return incrementId;
 };
 
+//F-0001
+//A-0001
+export const generateID = async (letter: string) => {
+  if (letter === 'F-') {
+    const lastFaculty = await UserModel.findOne({ role: 'faculty' }).sort(
+      '-createdAt',
+    );
+    console.log({lastFaculty});
+    let lastFacultyId = lastFaculty?.id;
+    lastFacultyId = lastFacultyId?.split('-')[1];
+    let currentId = lastFacultyId || (0).toString();
+    const faculty = letter;
+    currentId = (Number(currentId) + 1).toString().padStart(4, '0');
+    currentId = faculty + currentId;
+    return currentId;
+  } else if (letter === 'A-') {
+    const lastAdmin = await UserModel.findOne({ role: 'admin' }).sort(
+      '-createdAt',
+    );
+    let lastAdminId = lastAdmin?.id;
+    lastAdminId = lastAdminId?.split('-')[1];
+    let currentId = lastAdminId || (0).toString();
+    const admin = letter;
+    currentId = (Number(currentId) + 1).toString().padStart(4, '0');
+    currentId = admin + currentId;
+    return currentId;
+  }
+};
 

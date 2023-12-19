@@ -88,9 +88,9 @@ const createOfferedCourseInDB = async (payload: TOfferedCourse) => {
       semesterRegistration,
       faculty,
       days: { $in: days },
-    },
-    { days, startTime, endTime },
+    },{ days:1, startTime:1, endTime:1 },
   );
+  // console.log({assignedSchedules});
 
   const newSchedule = {
     days,
@@ -109,7 +109,9 @@ const createOfferedCourseInDB = async (payload: TOfferedCourse) => {
   //   }
   //   return false;
   // }
-  if (hasAvailableSchedules(assignedSchedules, newSchedule)) {
+  const availableSchedules = hasAvailableSchedules(assignedSchedules, newSchedule)
+  console.log(availableSchedules);
+  if (availableSchedules) {
     throw new AppError(
       httpStatus.CONFLICT,
       `This faculty is not available at that time ! Choose other time or day`,
@@ -170,7 +172,7 @@ const updateOfferedCourseInDB = async (
     endTime,
   };
 
-  if (hasAvailableSchedules(assignedSchedules, newSchedule)) {
+  if (await hasAvailableSchedules(assignedSchedules, newSchedule)) {
     throw new AppError(
       httpStatus.CONFLICT,
       `This faculty is not available at that time ! Choose other time or day`,
