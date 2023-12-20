@@ -6,6 +6,8 @@ import sendResponse from '../../utils/sendResponse';
 import { facultyServices } from './faculty.service';
 
 const getAllFaculties = catchAsync(async (req, res) => {
+  const user = req.user
+  console.log({user});
   const result = await facultyServices.getAllFacultiesFromDB();
   sendResponse(res, {
     success: true,

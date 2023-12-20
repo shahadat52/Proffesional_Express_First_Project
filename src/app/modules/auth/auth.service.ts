@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import AppError from '../../errors/appErrors';
 import { UserModel } from '../user/user.model';
 import { TLoginUser } from './auth.interface';
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 import config from '../../config';
 
 const loginUser = async (payload: TLoginUser) => {
@@ -33,7 +33,7 @@ const loginUser = async (payload: TLoginUser) => {
 
   const jwtPayload = {
     id: user?.id,
-    password: user?.password,
+    role: user?.role,
   };
   const accessToken = jwt.sign(
     {
@@ -46,10 +46,53 @@ const loginUser = async (payload: TLoginUser) => {
 
   return {
     accessToken,
-    
+    needsPasswordChange: user?.needsPasswordChange,
   };
+};
+
+const changePasswordInDB = async (
+  userData: JwtPayload,
+  payload: { oldPassword: string; newPassword: string },
+) => {
+  const { id, role } = userData.data;
+  const { oldPassword, newPassword } = payload;
+  const user = await UserModel.findOne({ id, role }).select('+password');
+  console.log(user?.password);
+  // if (!user) {
+  //   throw new AppError(httpStatus.NOT_FOUND, 'User not available');
+  // }
+
+  if (!(await UserModel.isUserExists(id))) {
+    throw new AppError(httpStatus.NOT_FOUND, 'User not available');
+  }
+  const isDeleted = user?.isDeleted;
+  if (isDeleted) {
+    throw new AppError(httpStatus.FORBIDDEN, 'User is already deleted');
+  }
+  const status = user?.status;
+  if (status === 'blocked') {
+    throw new AppError(httpStatus.FORBIDDEN, 'User is blocked');
+  }
+  const matchPassword = await bcrypt.compare(
+    oldPassword,
+    user?.password as string,
+  );
+  if (!matchPassword) {
+    throw new AppError(httpStatus.FORBIDDEN, 'Wrong password');
+  }
+
+  const hashPassword = bcrypt.hashSync(newPassword, Number(config.bcrypt_salt));
+  console.log({ hashPassword });
+
+  const result = await UserModel.findOneAndUpdate(
+    { id },
+    { password: hashPassword,needsPasswordChange: false, passwordChangeTime: new Date() },
+    { new: true },
+  );
+  return 'Password change successful' ;
 };
 
 export const authServices = {
   loginUser,
+  changePasswordInDB,
 };
