@@ -8,7 +8,6 @@ const findLastStudentID = async () => {
     .sort({ createdAt: -1 })
     .lean();
   return lastStudentId?.id ? lastStudentId.id : undefined;
-
 };
 
 export const generateStudentID = async (payload: TAcademicSemester) => {
@@ -37,7 +36,7 @@ export const generateStudentID = async (payload: TAcademicSemester) => {
     console.log('ahh', currentId);
   }
 
-  let incrementId =  (Number(currentId) + 1).toString().padStart(4, '0');
+  let incrementId = (Number(currentId) + 1).toString().padStart(4, '0');
   incrementId = `${payload.year}${payload.code}${incrementId}`;
 
   return incrementId;
@@ -50,7 +49,6 @@ export const generateID = async (letter: string) => {
     const lastFaculty = await UserModel.findOne({ role: 'faculty' }).sort(
       '-createdAt',
     );
-    console.log({lastFaculty});
     let lastFacultyId = lastFaculty?.id;
     lastFacultyId = lastFacultyId?.split('-')[1];
     let currentId = lastFacultyId || (0).toString();
@@ -71,4 +69,3 @@ export const generateID = async (letter: string) => {
     return currentId;
   }
 };
-

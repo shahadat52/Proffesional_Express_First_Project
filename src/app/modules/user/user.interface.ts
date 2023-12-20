@@ -1,6 +1,7 @@
+import { Model } from "mongoose";
 
 
-export type TUser = {
+export interface TUser  {
   id: string;
   password: string;
   needsPasswordChange: boolean;
@@ -8,6 +9,10 @@ export type TUser = {
   status: 'in-progress' | 'blocked';
   isDeleted: boolean;
 };
+
+export interface TUserModel extends Model<TUser> {
+  isUserExists(id: string): Promise<TUser | null>;
+}
 
 // export type TNewUser = {
 //     id: string;
