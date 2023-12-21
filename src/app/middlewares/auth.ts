@@ -19,7 +19,7 @@ const auth = (...requireRole: TUserRole[]) => {
       token,
       config.secret_key as string,
     ) as JwtPayload;
-    const { id, role } = decoded.data ;
+    const { id} = decoded.data ;
     //start\\
 
     const user = await UserModel.findOne({ id });

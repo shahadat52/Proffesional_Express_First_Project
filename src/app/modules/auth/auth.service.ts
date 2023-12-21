@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import AppError from '../../errors/appErrors';
 import { UserModel } from '../user/user.model';
 import { TLoginUser } from './auth.interface';
-import jwt, { JwtPayload } from 'jsonwebtoken';
+import jwt, { JwtPayload, sign } from 'jsonwebtoken';
 import config from '../../config';
 import { createToken } from './auth.utils';
 
@@ -100,6 +100,7 @@ const changePasswordInDB = async (
 
   const hashPassword = bcrypt.hashSync(newPassword, Number(config.bcrypt_salt));
 
+  // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
   const result = await UserModel.findOneAndUpdate(
     { id },
     {
@@ -112,7 +113,55 @@ const changePasswordInDB = async (
   return 'Password change successful';
 };
 
+const refreshTokenFromDB = async (token: JwtPayload, payload: JwtPayload) => {
+  const {refreshToken} = token 
+  const decoded = jwt.verify(refreshToken as string, config.refresh_key as string)
+  const {id} = decoded.data 
+
+  const user = await UserModel.findOne({ id}).select('+password');
+  console.log(user);
+
+
+  
+  
+  if (!(await UserModel.isUserExists(id))) {
+    throw new AppError(httpStatus.NOT_FOUND, 'User not available');
+  }
+  const isDeleted = user?.isDeleted;
+  if (isDeleted) {
+    throw new AppError(httpStatus.FORBIDDEN, 'User is already deleted');
+  }
+  const status = user?.status;
+  if (status === 'blocked') {
+    throw new AppError(httpStatus.FORBIDDEN, 'User is blocked');
+  }
+  if (
+    user?.passwordChangeTime &&
+    (await UserModel.isPasswordChangeAfterTokenIssue(
+      user.passwordChangeTime,
+      decoded.iat as number,
+    ))
+  ) {
+    throw new AppError(httpStatus.FORBIDDEN, 'Issued new token');
+  }
+  //end\\
+
+  const jwtPayload = {
+    id: user?.id,
+    role: user?.role,
+  };
+  const accessToken = createToken(
+    jwtPayload,
+    config.secret_key as string,
+    '10d',
+  );
+  return {
+    accessToken,
+  };
+};
+
 export const authServices = {
   loginUser,
   changePasswordInDB,
+  refreshTokenFromDB,
 };

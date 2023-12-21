@@ -62,11 +62,9 @@ UserSchema.statics.isPasswordMatch = async function (
 
 UserSchema.statics.isPasswordChangeAfterTokenIssue = function (
   passwordChangeTime,
-  iAt,
+  tokenIssueTime,
 ) {
   const changeTime = new Date(passwordChangeTime).getTime() / 1000;
-  const chang = changeTime>iAt
-  console.log(chang);
-  return changeTime > iAt;
+  return changeTime > tokenIssueTime;
 };
 export const UserModel = model<TUser, TUserModel>('User', UserSchema);
