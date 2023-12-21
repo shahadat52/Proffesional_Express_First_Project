@@ -53,4 +53,20 @@ UserSchema.statics.isUserExists = async function (id: string) {
   return await UserModel.findOne({ id });
 };
 
+UserSchema.statics.isPasswordMatch = async function (
+  planePassword,
+  hashPassword,
+) {
+  return await bcrypt.compare(planePassword, hashPassword as string);
+};
+
+UserSchema.statics.isPasswordChangeAfterTokenIssue = function (
+  passwordChangeTime,
+  iAt,
+) {
+  const changeTime = new Date(passwordChangeTime).getTime() / 1000;
+  const chang = changeTime>iAt
+  console.log(chang);
+  return changeTime > iAt;
+};
 export const UserModel = model<TUser, TUserModel>('User', UserSchema);

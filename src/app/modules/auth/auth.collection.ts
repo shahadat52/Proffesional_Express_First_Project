@@ -2,9 +2,15 @@ import httpStatus from 'http-status';
 import catchAsync from '../../utils/catchAsync';
 import { authServices } from './auth.service';
 import sendResponse from '../../utils/sendResponse';
+import config from '../../config';
 
 const login = catchAsync(async (req, res) => {
   const result = await authServices.loginUser(req.body);
+  const { refreshToken } = result;
+  res.cookie('refreshToken', refreshToken, {
+    httpOnly: true,
+    secure: config.node_env === 'production',
+  });
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,

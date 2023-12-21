@@ -4,8 +4,9 @@ import AppError from '../errors/appErrors';
 import httpStatus from 'http-status';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import config from '../config';
-
-const auth = (...requireRole: any[]) => {
+import { UserModel } from '../modules/user/user.model';
+import { TUserRole } from '../modules/user/user.interface';
+const auth = (...requireRole: TUserRole[]) => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const token = req.headers.authorization;
     if (!token) {
@@ -14,6 +15,35 @@ const auth = (...requireRole: any[]) => {
         'This user is unauthorized!!',
       );
     }
+    const decoded = jwt.verify(
+      token,
+      config.secret_key as string,
+    ) as JwtPayload;
+    const { id, role } = decoded.data ;
+    //start\\
+
+    const user = await UserModel.findOne({ id });
+    if (!(await UserModel.isUserExists(id))) {
+      throw new AppError(httpStatus.NOT_FOUND, 'User not available');
+    }
+    const isDeleted = user?.isDeleted;
+    if (isDeleted) {
+      throw new AppError(httpStatus.FORBIDDEN, 'User is already deleted');
+    }
+    const status = user?.status;
+    if (status === 'blocked') {
+      throw new AppError(httpStatus.FORBIDDEN, 'User is blocked');
+    }
+    if (
+      user?.passwordChangeTime &&
+      (await UserModel.isPasswordChangeAfterTokenIssue(
+        user.passwordChangeTime,
+        decoded.iat as number,
+      ))
+    ) {
+      throw new AppError(httpStatus.FORBIDDEN, 'Issued new token');
+    }
+    //end\\
 
     jwt.verify(token, config.secret_key as string, function (err, decoded) {
       if (err) {

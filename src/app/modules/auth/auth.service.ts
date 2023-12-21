@@ -5,6 +5,7 @@ import { UserModel } from '../user/user.model';
 import { TLoginUser } from './auth.interface';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import config from '../../config';
+import { createToken } from './auth.utils';
 
 const loginUser = async (payload: TLoginUser) => {
   /*
@@ -12,7 +13,7 @@ const loginUser = async (payload: TLoginUser) => {
     2) check isDeleted true ?
     3) check is blocked ?
     */
-  const user = await UserModel.findOne({ id: payload?.id });
+  const user = await UserModel.findOne({ id: payload?.id }).select('+password');
   // if (!user) {
   //   throw new AppError(httpStatus.NOT_FOUND, 'User not available');
   // }
@@ -28,8 +29,16 @@ const loginUser = async (payload: TLoginUser) => {
   if (status === 'blocked') {
     throw new AppError(httpStatus.FORBIDDEN, 'User is blocked');
   }
-  const matchPassword = await bcrypt.compare(payload.password, user.password);
-  console.log(matchPassword);
+  if (
+    !(await UserModel.isPasswordMatch(
+      payload.password,
+      user?.password as string,
+    ))
+  ) {
+    throw new AppError(httpStatus.FORBIDDEN, 'Incorrect Password');
+  }
+  // const matchPassword = await bcrypt.compare(payload.password, user.password);
+  // console.log(matchPassword);
 
   const jwtPayload = {
     id: user?.id,
@@ -42,9 +51,15 @@ const loginUser = async (payload: TLoginUser) => {
     config.secret_key as string,
     { expiresIn: '10d' },
   );
-  console.log(accessToken);
+
+  const refreshToken = createToken(
+    jwtPayload,
+    config.refresh_key as string,
+    '365d',
+  );
 
   return {
+    refreshToken,
     accessToken,
     needsPasswordChange: user?.needsPasswordChange,
   };
@@ -73,23 +88,28 @@ const changePasswordInDB = async (
   if (status === 'blocked') {
     throw new AppError(httpStatus.FORBIDDEN, 'User is blocked');
   }
-  const matchPassword = await bcrypt.compare(
-    oldPassword,
-    user?.password as string,
-  );
-  if (!matchPassword) {
+  // const matchPassword = await bcrypt.compare(
+  //   oldPassword,
+  //   user?.password as string,
+  // );
+  if (
+    !(await UserModel.isPasswordMatch(oldPassword, user?.password as string))
+  ) {
     throw new AppError(httpStatus.FORBIDDEN, 'Wrong password');
   }
 
   const hashPassword = bcrypt.hashSync(newPassword, Number(config.bcrypt_salt));
-  console.log({ hashPassword });
 
   const result = await UserModel.findOneAndUpdate(
     { id },
-    { password: hashPassword,needsPasswordChange: false, passwordChangeTime: new Date() },
+    {
+      password: hashPassword,
+      needsPasswordChange: false,
+      passwordChangeTime: new Date(),
+    },
     { new: true },
   );
-  return 'Password change successful' ;
+  return 'Password change successful';
 };
 
 export const authServices = {
