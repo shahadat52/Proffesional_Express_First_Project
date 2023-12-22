@@ -187,9 +187,46 @@ const forgetPasswordInDB = async (id: string) => {
   return resetUiLink;
 };
 
+const resetPasswordInDB = async (newPassword: string, token: string) => {
+  console.log(newPassword);
+  const decoded = jwt.verify(token, config.secret_key as string)
+  const { id } = decoded.data;
+  // console.log({ decoded });
+  const user = await UserModel.findOne({ id }).select('+password');
+  if (!(await UserModel.isUserExists(id))) {
+    throw new AppError(httpStatus.NOT_FOUND, 'User not available');
+  }
+  const isDeleted = user?.isDeleted;
+  if (isDeleted) {
+    throw new AppError(httpStatus.FORBIDDEN, 'User is already deleted');
+  }
+  const status = user?.status;
+  if (status === 'blocked') {
+    throw new AppError(httpStatus.FORBIDDEN, 'User is blocked');
+  }
+
+  const hashPassword = bcrypt.hashSync(newPassword, 10);
+  console.log(({hashPassword}));
+  const result = await UserModel.findOneAndUpdate(
+    { id },
+    {
+      password: hashPassword,
+      needsPasswordChange: false,
+      passwordChangeTime: new Date(),
+    },
+    { new: true },
+  );
+
+  return result;
+};
+
 export const authServices = {
   loginUser,
   changePasswordInDB,
   refreshTokenFromDB,
   forgetPasswordInDB,
+  resetPasswordInDB,
 };
+
+
+
