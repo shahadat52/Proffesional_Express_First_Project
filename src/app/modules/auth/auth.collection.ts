@@ -31,19 +31,31 @@ const changePassword = catchAsync(async (req, res) => {
   });
 });
 
-const refreshToken = catchAsync(async (req, res) =>{
-
-  const result = await authServices.refreshTokenFromDB(req.cookies, req.user)
+const refreshToken = catchAsync(async (req, res) => {
+  const result = await authServices.refreshTokenFromDB(req.cookies);
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
     message: 'Refresh token retrieved successfully',
     data: result,
-  })
-})
+  });
+});
+
+const forgetPassword = catchAsync(async (req, res) => {
+  const { id } = req.body;
+  const result = await authServices.forgetPasswordInDB(id);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'Reset link sent to email successfully',
+    data: result,
+  });
+});
 
 export const authCollections = {
   login,
   changePassword,
-  refreshToken
+  refreshToken,
+  forgetPassword,
 };
