@@ -6,6 +6,7 @@ import { TLoginUser } from './auth.interface';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import config from '../../config';
 import { createToken } from './auth.utils';
+import sendEmail from '../../utils/sendEmail';
 
 const loginUser = async (payload: TLoginUser) => {
   /*
@@ -182,6 +183,7 @@ const forgetPasswordInDB = async (id: string) => {
   );
 
   const resetUiLink = `http://localhost:3000?id=${user?.id}&token=${resetToken}`;
+  sendEmail(user?.email as string, resetUiLink);
   return resetUiLink;
 };
 
