@@ -54,7 +54,6 @@ export const createStudentValidationSchema = z.object({
       permanentAddress: z.string().min(1),
       guardian: createGuardianZodSchema,
       localGuardian: createLocalGuardianZodSchema,
-      profileImage: z.string().min(1),
       isActive: z.enum(['active', 'block']),
       admissionSemester: z.string(),
       isDeleted: z.boolean(),

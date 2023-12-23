@@ -13,8 +13,14 @@ import { FacultyModel } from '../faculty/faculty.model';
 import { TAdmin } from '../admin/admin.interface';
 import httpStatus from 'http-status';
 import { AdminModel } from '../admin/admin.model';
+import { JwtPayload } from 'jsonwebtoken';
+import { sendImageToCloudinary } from '../../utils/sendImageToCloudinary';
 
-const createStudentInDb = async (password: string, payload: TStudent) => {
+const createStudentInDb = async (
+  password: string,
+  payload: TStudent,
+  path: any,
+) => {
   //firstly I have to create a user then I will create a student
   const userData: Partial<TUser> = {};
 
@@ -48,6 +54,10 @@ const createStudentInDb = async (password: string, payload: TStudent) => {
     payload.id = newUser[0].id;
     payload.user = newUser[0]._id;
 
+    const fileName = `${payload?.id}${payload?.name?.firstName}`;
+    // Image uploader
+    const { secure_url } = await sendImageToCloudinary(path, fileName);
+    payload.profileImage = secure_url;
     const newStudent = await Student.create([payload], { session });
     if (!newStudent) {
       return;
@@ -76,7 +86,6 @@ const createFacultyInDB = async (password: string, faculty: TFaculty) => {
     userData.email = faculty.email;
     userData.id = await generateID('F-');
     userData.password = password || config.default_pass;
-    console.log(userData);
     const facultyUser = await UserModel.create([userData], { session });
     if (!facultyUser.length) {
       throw new AppError(400, 'User created unsuccessful');
@@ -90,7 +99,7 @@ const createFacultyInDB = async (password: string, faculty: TFaculty) => {
     await session.commitTransaction();
     await session.endSession();
     return result;
-  } catch (error) {
+  } catch (error: any) {
     await session.abortTransaction();
     await session.endSession();
     throw new Error(error);
@@ -146,7 +155,11 @@ const createAdminIntoDB = async (password: string, payload: TAdmin) => {
   }
 };
 
-const changeStatusInDB = async (status, userId, user) => {
+const changeStatusInDB = async (
+  status: string[],
+  userId: string,
+  user: JwtPayload,
+) => {
   console.log({ status });
   console.log({ user });
   const result = await UserModel.findByIdAndUpdate(
