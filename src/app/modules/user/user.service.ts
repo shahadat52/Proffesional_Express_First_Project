@@ -36,7 +36,7 @@ const createStudentInDb = async (password: string, payload: TStudent) => {
     //set user role
     userData.role = 'student';
     // set user email
-    userData.email= payload.email
+    userData.email = payload.email;
     //create user in userModel
     const newUser = await UserModel.create([userData], { session });
 
@@ -73,7 +73,7 @@ const createFacultyInDB = async (password: string, faculty: TFaculty) => {
     session.startTransaction();
     userData.role = 'faculty';
     // set faculty email
-    userData.email= faculty.email;
+    userData.email = faculty.email;
     userData.id = await generateID('F-');
     userData.password = password || config.default_pass;
     console.log(userData);
@@ -107,7 +107,7 @@ const createAdminIntoDB = async (password: string, payload: TAdmin) => {
   //set student role
   userData.role = 'admin';
   // set admin email
-  userData.email= payload.email
+  userData.email = payload.email;
 
   const session = await mongoose.startSession();
 
@@ -146,8 +146,22 @@ const createAdminIntoDB = async (password: string, payload: TAdmin) => {
   }
 };
 
+const changeStatusInDB = async (status, userId, user) => {
+  console.log({ status });
+  console.log({ user });
+  const result = await UserModel.findByIdAndUpdate(
+    userId,
+    {
+      status,
+    },
+    { new: true },
+  );
+  return result;
+};
+
 export const userService = {
   createStudentInDb,
   createFacultyInDB,
   createAdminIntoDB,
+  changeStatusInDB,
 };

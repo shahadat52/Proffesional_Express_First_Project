@@ -28,6 +28,10 @@ const UserSchema = new Schema<TUser, TUserModel>(
       type: Boolean,
       default: true,
     },
+    status: {
+      type: String,
+      enum: ['in-progress', 'blocked'],
+    },
     role: {
       type: String,
       enum: ['student', 'faculty', 'admin'],
