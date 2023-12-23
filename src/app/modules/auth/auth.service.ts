@@ -176,11 +176,7 @@ const forgetPasswordInDB = async (id: string) => {
     id: user?.id,
     role: user?.role,
   };
-  const resetToken = createToken(
-    jwtPayload,
-    config.secret_key as string,
-    '10d',
-  );
+  const resetToken = createToken(jwtPayload, config.secret_key as string, '2m');
 
   const resetUiLink = `http://localhost:3000?id=${user?.id}&token=${resetToken}`;
   sendEmail(user?.email as string, resetUiLink);
@@ -189,7 +185,7 @@ const forgetPasswordInDB = async (id: string) => {
 
 const resetPasswordInDB = async (newPassword: string, token: string) => {
   console.log(newPassword);
-  const decoded = jwt.verify(token, config.secret_key as string)
+  const decoded = jwt.verify(token, config.secret_key as string);
   const { id } = decoded.data;
   // console.log({ decoded });
   const user = await UserModel.findOne({ id }).select('+password');
@@ -205,8 +201,8 @@ const resetPasswordInDB = async (newPassword: string, token: string) => {
     throw new AppError(httpStatus.FORBIDDEN, 'User is blocked');
   }
 
-  const hashPassword = bcrypt.hashSync(newPassword, 10);
-  console.log(({hashPassword}));
+  const hashPassword = bcrypt.hashSync(newPassword, Number(config.bcrypt_salt));
+  console.log({ hashPassword });
   const result = await UserModel.findOneAndUpdate(
     { id },
     {
@@ -227,6 +223,5 @@ export const authServices = {
   forgetPasswordInDB,
   resetPasswordInDB,
 };
-
 
 

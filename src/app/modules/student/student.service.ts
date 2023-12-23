@@ -4,10 +4,11 @@ import { UserModel } from '../user/user.model';
 import { TStudent } from './student.interface';
 import QueryBuilder from '../../builder/QueryBuilder';
 import { studentSearchableFields } from './student.constant';
+import { JwtPayload } from 'jsonwebtoken';
 
 //service will query in DB
 
-const getAllStudentFromDb = async ( query: Record<string, unknown>) => {
+const getAllStudentFromDb = async (query: Record<string, unknown>) => {
   // const queryObj = { ...query };
 
   // // {email: {$regex: query, $options:'i'}}
@@ -77,12 +78,16 @@ const getAllStudentFromDb = async ( query: Record<string, unknown>) => {
     .sort()
     .pagination()
     .fields();
-
   const result = await studentQuery.modelQuery;
   return result;
 };
 //[ { '$match': { '$ne': '12342445844' } } , { '$match': { '$ne': '12342445844' } } ]
-const getSingleStudentFromDb = async (id: string) => {
+const getSingleStudentFromDb = async (id: string, user: JwtPayload) => {
+  console.log(user);
+  if (user.role === 'student') {
+    const result = await Student.findOne({ id: user?.id });
+    return result;
+  }
   const result = await Student.findOne({ id });
   // .populate('user')
   // .populate('admissionSemester')

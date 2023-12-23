@@ -12,7 +12,7 @@ const auth = (...requireRole: TUserRole[]) => {
     if (!token) {
       throw new AppError(
         httpStatus.UNAUTHORIZED,
-        'This user is unauthorized!!',
+        'This user is unauthorized!! Please login and collect token',
       );
     }
     const decoded = jwt.verify(
@@ -51,7 +51,7 @@ const auth = (...requireRole: TUserRole[]) => {
       }
       const role = decoded?.data.role;
       if (requireRole && !requireRole.includes(role)) {
-        throw new AppError(httpStatus.UNAUTHORIZED, 'User is Unauthorized');
+        throw new AppError(httpStatus.UNAUTHORIZED, 'User is Unauthorized cz you have no role');
       }
       req.user = decoded as JwtPayload;
       next();
