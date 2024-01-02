@@ -1,24 +1,24 @@
-import { Types } from "mongoose"
+import httpStatus from 'http-status';
+import catchAsync from '../../utils/catchAsync';
+import sendResponse from '../../utils/sendResponse';
+import { enrolledCourseServices } from './enrolledCourse.service';
 
-export type TGrade = 'A'|'B'|'C'|'D'|'F'|'NA'
-export type TCourseMarks = {
-    classTest1: number;
-    midTerm:number;
-    classTest2:number;
-    final:number
-}
+const createEnrolledCourse = catchAsync(async (req, res) => {
+  const user = req.user;
+  console.log({ user });
+  const result = await enrolledCourseServices.createEnrolledCourseInDB(
+    user,
+    req.body,
+  );
 
-export type TEnrolledCourse = {
-    semesterRegistration: Types.ObjectId;
-    academicSemester: Types.ObjectId;
-    academicDepartment: Types.ObjectId;
-    offeredCourse: Types.ObjectId;
-    course: Types.ObjectId;
-    student: Types.ObjectId;
-    faculty: Types.ObjectId;
-    isEnrolled: boolean;
-    courseMarks:TCourseMarks ;
-    grade:TGrade;
-    gradePoints: number;
-    isCompleted: boolean;
-}
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: `Enrolled course create successful`,
+    data: result,
+  });
+});
+
+export const enrolledCourseCollections = {
+  createEnrolledCourse,
+};

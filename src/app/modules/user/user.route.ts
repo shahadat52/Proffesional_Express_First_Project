@@ -37,7 +37,6 @@ router.post(
 
 router.patch(
   '/change-status/:userId',
-  auth('admin'),
   validateRequest(userValidationSchemas.changeStatusValidationSchema),
   userController.changeStatus,
 );
