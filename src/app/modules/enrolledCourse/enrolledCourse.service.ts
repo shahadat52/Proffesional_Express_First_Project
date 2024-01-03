@@ -1,12 +1,12 @@
 import httpStatus from 'http-status';
 import AppError from '../../errors/appErrors';
-import isExists from '../../utils/isExists';
 import { OfferedCourseModel } from '../offeredCourse/offeredCourse.model';
 import { UserModel } from '../user/user.model';
 import { TEnrolledCourse } from './enrolledCourse.interface';
 import { EnrolledCourseModel } from './enrolledCourse.model';
 import { CourseModel } from '../course/course.model';
 import { SemesterRegistrationModel } from '../semesterRegistration/semesterRegistration.model';
+import mongoose from 'mongoose';
 
 const createEnrolledCourseInDB = async (
   user: any,
@@ -26,8 +26,13 @@ const createEnrolledCourseInDB = async (
   if (!isOfferedCourseExists) {
     throw new AppError(400, 'Offered Course not found');
   }
-  const { semesterRegistration, academicSemester, academicDepartment, course, faculty, student } =
-    isOfferedCourseExists;
+  const {
+    semesterRegistration,
+    academicSemester,
+    academicDepartment,
+    course,
+    faculty,
+  } = isOfferedCourseExists;
   // console.log({isOfferedCourseExists});
   const enrolledStudent = await UserModel.findOne({ id }).select('_id');
   if (!enrolledStudent) {
@@ -53,23 +58,71 @@ const createEnrolledCourseInDB = async (
       'maxCredit',
     );
 
-  console.log({ semesterMaxCredits });
-  // const isExccedCredits = await 
+  const isExccedCredits = await EnrolledCourseModel.aggregate([
+    {
+      $match: {
+        semesterRegistration,
+        student: enrolledStudent._id,
+      },
+    },
+    {
+      $lookup: {
+        from: 'courses',
+        localField: 'course',
+        foreignField: '_id',
+        as: 'CourseData',
+      },
+    },
+    {
+      $unwind: '$CourseData',
+    },
+    {
+      $group: {
+        _id: null,
+        fullDoc: { $push: '$$ROOT' },
+        sumOfCredits: { $sum: '$CourseData.credits' },
+      },
+    },
+    {
+      $project: { _id: 0, sumOfCredits: 1 },
+    },
+  ]);
+
+  const currentCredits = isExccedCredits[0].sumOfCredits + credits
+  const maximumCredits = semesterMaxCredits?.maxCredit
+  if(currentCredits > maximumCredits){
+    throw new AppError(400, 'Credits exicced')
+  }
+
 
   payload.faculty = faculty;
   payload.student = enrolledStudent._id;
-  payload.academicDepartment = academicDepartment
+  payload.academicDepartment = academicDepartment;
   payload.academicSemester = academicSemester;
-  payload.semesterRegistration = semesterRegistration
-  payload.course = course
+  payload.semesterRegistration = semesterRegistration;
+  payload.course = course;
+  const session = await mongoose.startSession();
+  try {
+    session.startTransaction();
+    const result = await EnrolledCourseModel.create([payload], { session });
+    if (!result) {
+      throw new AppError(400, 'Failed to enrolled course');
+    }
 
-  const result = await EnrolledCourseModel.create(payload);
-  if(!result){
-    throw new AppError(400, 'Failed to enrolled course')
+    const capacity = isOfferedCourseExists.maxCapacity;
+    const updateMaxCapacity = await OfferedCourseModel.findByIdAndUpdate(
+      result[0].offeredCourse,
+      { maxCapacity: capacity - 1 },
+      { session },
+    );
+    await session.commitTransaction();
+    await session.endSession();
+    return isExccedCredits;
+  } catch (error) {
+    await session.abortTransaction();
+    await session.endSession();
+    throw new AppError(400, 'Failed to enrolled course');
   }
-  const capacity = isOfferedCourseExists.maxCapacity
-  const updateMaxCapacity = await OfferedCourseModel.findByIdAndUpdate(result.offeredCourse, {maxCapacity: capacity -1})
-  return result;
 };
 
 export const enrolledCourseServices = {
