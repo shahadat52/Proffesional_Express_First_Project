@@ -5,7 +5,6 @@ import { enrolledCourseServices } from './enrolledCourse.service';
 
 const createEnrolledCourse = catchAsync(async (req, res) => {
   const user = req.user;
-  console.log({ user });
   const result = await enrolledCourseServices.createEnrolledCourseInDB(
     user,
     req.body,
