@@ -62,7 +62,10 @@ const enrolledCourseSchema = new Schema<TEnrolledCourse>({
     ref: 'Faculty',
   },
   isEnrolled: { type: Boolean, default: false },
-  courseMarks: courseMarksSchema,
+  courseMarks: {
+    type:courseMarksSchema,
+    default: {}
+  },
   grade: {
     type: String,
     enum: ['A', 'B', 'C', 'D', 'F', 'NA'],

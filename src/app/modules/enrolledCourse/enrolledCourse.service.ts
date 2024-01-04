@@ -10,6 +10,9 @@ import { EnrolledCourseModel } from './enrolledCourse.model';
 import { CourseModel } from '../course/course.model';
 import { SemesterRegistrationModel } from '../semesterRegistration/semesterRegistration.model';
 import mongoose from 'mongoose';
+import { FacultyModel } from '../faculty/faculty.model';
+import { object } from 'zod';
+import { Student } from '../student/student.model';
 
 const createEnrolledCourseInDB = async (
   user: any,
@@ -39,7 +42,7 @@ const createEnrolledCourseInDB = async (
   // console.log({isOfferedCourseExists});
   const enrolledStudent = await UserModel.findOne({ id }).select('_id');
   if (!enrolledStudent) {
-    throw new AppError(400, 'User not found');
+    throw new AppError(400, 'Student not found');
   }
 
   const isStudentEnrolled = await EnrolledCourseModel.findOne({
@@ -127,11 +130,66 @@ const createEnrolledCourseInDB = async (
   }
 };
 
-const updateEnrolledCourseMarksInDB = async(user, payload) =>{
+const updateEnrolledCourseMarksInDB = async (
+  facultyId: string,
+  payload: Partial<TEnrolledCourse>,
+) => {
+  const { offeredCourse, semesterRegistration, student, courseMarks } = payload;
+  const isOfferedCourseExists =
+    await OfferedCourseModel.findById(offeredCourse);
+  if (!isOfferedCourseExists) {
+    throw new AppError(400, 'Offered Course not found');
+  }
 
-}
+  const enrolledStudent = await Student.findById(student).select(
+    '_id',
+  );
+  if (!enrolledStudent) {
+    throw new AppError(400, 'Student not found');
+  }
+
+  const isSemesterRegistration =
+    await SemesterRegistrationModel.findById(semesterRegistration);
+  if (!isSemesterRegistration) {
+    throw new AppError(400, 'Semester registration not found');
+  }
+
+  const isFaculty = await FacultyModel.findOne({ id: facultyId });
+
+  if (!isFaculty) {
+    throw new AppError(400, 'Faculty not found');
+  }
+
+  const isBelongInDB = await EnrolledCourseModel.findOne({
+    semesterRegistration,
+    offeredCourse,
+    student,
+    // faculty: isFaculty._id,
+  });
+  if (!isBelongInDB) {
+    throw new AppError(httpStatus.FORBIDDEN, 'This course not belong in DB');
+  }
+
+  const modifiedData: Record<string, unknown> = {
+    ...courseMarks,
+  };
+
+  if (courseMarks && Object.keys(courseMarks).length) {
+    for (const [key, value] of Object.entries(courseMarks)) {
+      modifiedData[`courseMarks.${key}`] = value;
+    }
+  }
+  console.log({ modifiedData });
+  const result = await EnrolledCourseModel.findByIdAndUpdate(
+    isBelongInDB._id,
+     modifiedData ,
+    { new: true },
+  );
+
+  return result;
+};
 
 export const enrolledCourseServices = {
   createEnrolledCourseInDB,
-  updateEnrolledCourseMarksInDB
+  updateEnrolledCourseMarksInDB,
 };
