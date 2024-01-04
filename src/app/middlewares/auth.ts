@@ -50,6 +50,7 @@ const auth = (...requireRole: TUserRole[]) => {
         throw new AppError(httpStatus.UNAUTHORIZED, 'User is Unauthorized');
       }
       const role = decoded?.data.role;
+      console.log({role});
       if (requireRole && !requireRole.includes(role)) {
         throw new AppError(httpStatus.UNAUTHORIZED, 'User is Unauthorized cz you have no role');
       }

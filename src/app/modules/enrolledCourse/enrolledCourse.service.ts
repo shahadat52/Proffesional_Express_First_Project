@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable no-unused-vars */
 import httpStatus from 'http-status';
 import AppError from '../../errors/appErrors';
 import { OfferedCourseModel } from '../offeredCourse/offeredCourse.model';
@@ -88,12 +91,11 @@ const createEnrolledCourseInDB = async (
     },
   ]);
 
-  const currentCredits = isExccedCredits[0].sumOfCredits + credits
-  const maximumCredits = semesterMaxCredits?.maxCredit
-  if(currentCredits > maximumCredits){
-    throw new AppError(400, 'Credits exicced')
+  const currentCredits = isExccedCredits[0].sumOfCredits + credits;
+  const maximumCredits = semesterMaxCredits?.maxCredit as number;
+  if (currentCredits > maximumCredits) {
+    throw new AppError(400, 'You have exceeded maximum number of credits !');
   }
-
 
   payload.faculty = faculty;
   payload.student = enrolledStudent._id;
@@ -117,7 +119,7 @@ const createEnrolledCourseInDB = async (
     );
     await session.commitTransaction();
     await session.endSession();
-    return isExccedCredits;
+    return result;
   } catch (error) {
     await session.abortTransaction();
     await session.endSession();
@@ -125,6 +127,11 @@ const createEnrolledCourseInDB = async (
   }
 };
 
+const updateEnrolledCourseMarksInDB = async(user, payload) =>{
+
+}
+
 export const enrolledCourseServices = {
   createEnrolledCourseInDB,
+  updateEnrolledCourseMarksInDB
 };
