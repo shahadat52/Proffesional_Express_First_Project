@@ -164,7 +164,7 @@ const updateEnrolledCourseMarksInDB = async (
     semesterRegistration,
     offeredCourse,
     student,
-    // faculty: isFaculty._id,
+    faculty: isFaculty._id,
   });
   if (!isBelongInDB) {
     throw new AppError(httpStatus.FORBIDDEN, 'This course not belong in DB');
@@ -174,12 +174,15 @@ const updateEnrolledCourseMarksInDB = async (
     ...courseMarks,
   };
 
+  if(courseMarks && courseMarks.final){
+    const {classTest1,midTerm, classTest2, final} = courseMarks
+  }
+
   if (courseMarks && Object.keys(courseMarks).length) {
     for (const [key, value] of Object.entries(courseMarks)) {
       modifiedData[`courseMarks.${key}`] = value;
     }
   }
-  console.log({ modifiedData });
   const result = await EnrolledCourseModel.findByIdAndUpdate(
     isBelongInDB._id,
      modifiedData ,
