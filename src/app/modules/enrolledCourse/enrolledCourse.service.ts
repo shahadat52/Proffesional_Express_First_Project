@@ -13,6 +13,7 @@ import mongoose from 'mongoose';
 import { FacultyModel } from '../faculty/faculty.model';
 import { object } from 'zod';
 import { Student } from '../student/student.model';
+import { gradeCount } from './enrolledCourse.utils';
 
 const createEnrolledCourseInDB = async (
   user: any,
@@ -141,9 +142,7 @@ const updateEnrolledCourseMarksInDB = async (
     throw new AppError(400, 'Offered Course not found');
   }
 
-  const enrolledStudent = await Student.findById(student).select(
-    '_id',
-  );
+  const enrolledStudent = await Student.findById(student).select('_id');
   if (!enrolledStudent) {
     throw new AppError(400, 'Student not found');
   }
@@ -174,8 +173,18 @@ const updateEnrolledCourseMarksInDB = async (
     ...courseMarks,
   };
 
-  if(courseMarks && courseMarks.final){
-    const {classTest1,midTerm, classTest2, final} = courseMarks
+  if (courseMarks && courseMarks.final) {
+    const { classTest1, midTerm, classTest2, final } = courseMarks;
+    const totalMarks =
+      Math.ceil(classTest1 * 0.15) +
+      Math.ceil(midTerm * 0.25) +
+      Math.ceil(classTest2 * 0.2) +
+      Math.ceil(final * 0.4);
+      const result = gradeCount(totalMarks);
+    modifiedData.grade = result.grade;
+    modifiedData.gradePoints = result.gradePoint;
+    modifiedData.isCompleted = true
+    
   }
 
   if (courseMarks && Object.keys(courseMarks).length) {
@@ -185,7 +194,7 @@ const updateEnrolledCourseMarksInDB = async (
   }
   const result = await EnrolledCourseModel.findByIdAndUpdate(
     isBelongInDB._id,
-     modifiedData ,
+    modifiedData,
     { new: true },
   );
 
