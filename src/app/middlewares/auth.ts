@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextFunction, Request, Response } from 'express';
 import catchAsync from '../utils/catchAsync';
 import AppError from '../errors/appErrors';
@@ -19,7 +20,7 @@ const auth = (...requireRole: TUserRole[]) => {
       token,
       config.secret_key as string,
     ) as JwtPayload;
-    const { id} = decoded.data ;
+    const { id } = decoded.data;
     //start\\
 
     const user = await UserModel.findOne({ id });
@@ -49,7 +50,7 @@ const auth = (...requireRole: TUserRole[]) => {
       if (err) {
         throw new AppError(httpStatus.UNAUTHORIZED, 'User is Unauthorized');
       }
-      const role = decoded?.data.role;
+      const role = (decoded as any)?.data.role;
       if (requireRole && !requireRole.includes(role)) {
         throw new AppError(httpStatus.UNAUTHORIZED, 'User is Unauthorized cz you have no role');
       }

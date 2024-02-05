@@ -34,7 +34,7 @@ const UserSchema = new Schema<TUser, TUserModel>(
     },
     role: {
       type: String,
-      enum: ['student', 'faculty', 'admin'],
+      enum: ['super-admin','student', 'faculty', 'admin'],
     },
     isDeleted: {
       type: Boolean,

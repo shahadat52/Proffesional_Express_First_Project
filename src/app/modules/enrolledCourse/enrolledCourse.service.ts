@@ -131,6 +131,11 @@ const createEnrolledCourseInDB = async (
   }
 };
 
+const getAllEnrolledCourseFromDB = async () => {
+  const result = await EnrolledCourseModel.find();
+  return result;
+};
+
 const updateEnrolledCourseMarksInDB = async (
   facultyId: string,
   payload: Partial<TEnrolledCourse>,
@@ -180,11 +185,10 @@ const updateEnrolledCourseMarksInDB = async (
       Math.ceil(midTerm * 0.25) +
       Math.ceil(classTest2 * 0.2) +
       Math.ceil(final * 0.4);
-      const result = gradeCount(totalMarks);
+    const result = gradeCount(totalMarks);
     modifiedData.grade = result.grade;
     modifiedData.gradePoints = result.gradePoint;
-    modifiedData.isCompleted = true
-    
+    modifiedData.isCompleted = true;
   }
 
   if (courseMarks && Object.keys(courseMarks).length) {
@@ -203,5 +207,6 @@ const updateEnrolledCourseMarksInDB = async (
 
 export const enrolledCourseServices = {
   createEnrolledCourseInDB,
+  getAllEnrolledCourseFromDB,
   updateEnrolledCourseMarksInDB,
 };

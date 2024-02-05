@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import httpStatus from 'http-status';
 import bcrypt from 'bcrypt';
 import AppError from '../../errors/appErrors';
@@ -119,7 +120,7 @@ const refreshTokenFromDB = async (token: JwtPayload) => {
     refreshToken as string,
     config.refresh_key as string,
   );
-  const { id } = decoded.data;
+  const { id } = (decoded as any).data;
   const user = await UserModel.findOne({ id }).select('+password');
 
   if (!(await UserModel.isUserExists(id))) {
@@ -137,7 +138,7 @@ const refreshTokenFromDB = async (token: JwtPayload) => {
     user?.passwordChangeTime &&
     (await UserModel.isPasswordChangeAfterTokenIssue(
       user.passwordChangeTime,
-      decoded.iat as number,
+      (decoded as any).iat as number,
     ))
   ) {
     throw new AppError(httpStatus.FORBIDDEN, 'Issued new token');
@@ -186,7 +187,7 @@ const forgetPasswordInDB = async (id: string) => {
 const resetPasswordInDB = async (newPassword: string, token: string) => {
   console.log(newPassword);
   const decoded = jwt.verify(token, config.secret_key as string);
-  const { id } = decoded.data;
+  const { id } = (decoded as any).data;
   // console.log({ decoded });
   const user = await UserModel.findOne({ id }).select('+password');
   if (!(await UserModel.isUserExists(id))) {

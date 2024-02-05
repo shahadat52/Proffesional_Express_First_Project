@@ -10,5 +10,6 @@ export default {
   bcrypt_salt: process.env.BCRYPT_SALT_ROUND,
   default_pass: process.env.DEFAULT_PASS,
   secret_key: process.env.JWT_SECRET_KEY,
-  refresh_key: process.env.JWT_REFRESH_TOKEN_SECRET
+  refresh_key: process.env.JWT_REFRESH_TOKEN_SECRET,
+  super_admin_pass: process.env.SUPER_ADMIN_PASS
 };

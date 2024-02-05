@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import mongoose from 'mongoose';
 import config from '../../config';
 import { TAcademicSemester } from '../academicSemester/academicSemester.interface.';
@@ -56,7 +58,7 @@ const createStudentInDb = async (
 
     const fileName = `${payload?.id}${payload?.name?.firstName}`;
     // Image uploader
-    const { secure_url } = await sendImageToCloudinary(path, fileName);
+    const { secure_url }:any = await sendImageToCloudinary(path, fileName);
     payload.profileImage = secure_url;
     const newStudent = await Student.create([payload], { session });
     if (!newStudent) {

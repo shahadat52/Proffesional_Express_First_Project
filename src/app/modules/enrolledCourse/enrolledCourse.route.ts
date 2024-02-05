@@ -13,6 +13,7 @@ router.post(
   ),
   enrolledCourseCollections.createEnrolledCourse,
 );
+router.get('/', auth('admin'), enrolledCourseCollections.getAllEnrolledCourse);
 
 router.patch(
   '/update-student-marks',
